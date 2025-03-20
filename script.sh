@@ -6,6 +6,19 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
+# Create a new non-root user for Chrome Remote Desktop
+NEW_USER="crduser"
+USER_HOME="/home/$NEW_USER"
+
+if ! id "$NEW_USER" &>/dev/null; then
+    echo "Creating new user: $NEW_USER"
+    sudo useradd -m -s /bin/bash "$NEW_USER"
+    sudo usermod -aG sudo "$NEW_USER"
+    echo "$NEW_USER ALL=(ALL) NOPASSWD:ALL" | sudo tee "/etc/sudoers.d/$NEW_USER"
+else
+    echo "User $NEW_USER already exists. Skipping creation."
+fi
+
 # Update system packages
 sudo apt update && sudo apt upgrade -y
 
@@ -26,9 +39,12 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes chrome-remote-d
 sudo DEBIAN_FRONTEND=noninteractive apt install --assume-yes xfce4 desktop-base dbus-x11 xscreensaver x11-xserver-utils
 
 # Configure Chrome Remote Desktop to use Xfce
-sudo bash -c 'echo "exec /etc/X11/Xsession /usr/bin/xfce4-session" > /etc/chrome-remote-desktop-session'
+sudo -u "$NEW_USER" bash -c 'echo "exec /etc/X11/Xsession /usr/bin/xfce4-session" > ~/.chrome-remote-desktop-session'
 
-# Disable display manager
+# Set correct permissions
+sudo chown "$NEW_USER:$NEW_USER" "$USER_HOME/.chrome-remote-desktop-session"
+
+# Disable display manager (ignore errors if not installed)
 sudo systemctl disable lightdm.service 2>/dev/null || echo "lightdm not installed or not managed by systemd."
 
 # Prompt user for Chrome Remote Desktop setup command
@@ -40,17 +56,16 @@ echo "Follow the instructions and obtain the Debian setup command. Copy and past
 read -p "Enter the setup command: " CRD_SETUP_CMD
 
 # Append the required --user-name argument
-USERNAME=$(whoami)
-CRD_SETUP_CMD="${CRD_SETUP_CMD} --user-name=${USERNAME}"
+CRD_SETUP_CMD="${CRD_SETUP_CMD} --user-name=${NEW_USER}"
 
-# Run the setup command
-eval "$CRD_SETUP_CMD"
+# Run the setup command as the new user
+sudo su - "$NEW_USER" -c "$CRD_SETUP_CMD"
 
-# Start the Chrome Remote Desktop service using 'service' instead of systemctl
-service chrome-remote-desktop start
+# Start Chrome Remote Desktop service as the new user
+sudo su - "$NEW_USER" -c "chrome-remote-desktop --start"
 
 # Verify the service status
-service chrome-remote-desktop status
+sudo su - "$NEW_USER" -c "chrome-remote-desktop --status"
 
 echo ""
 echo "Chrome Remote Desktop setup is complete! You can now connect to your VM instance."
