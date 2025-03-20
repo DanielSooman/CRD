@@ -3,7 +3,5 @@
 su
 ```
 ```
-curl -s -L -o run.py 'https://raw.githubusercontent.com/DanielSooman/CRD/refs/heads/main/run.py'
+curl -O https://raw.githubusercontent.com/DanielSooman/CRD/refs/heads/main/script.sh; chmod +x script.sh; ./script.sh
 ```
-## Get SSH code from: https://remotedesktop.google.com/access
-### Enter Pin 
