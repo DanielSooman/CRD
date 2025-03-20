@@ -10,7 +10,7 @@ fi
 sudo apt update && sudo apt upgrade -y
 
 # Install necessary dependencies
-sudo apt install --assume-yes curl gpg dbus-x11 xscreensaver
+sudo apt install --assume-yes curl gpg dbus-x11 xscreensaver x11-xserver-utils
 
 # Add Chrome Remote Desktop repository
 curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
@@ -29,7 +29,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt install --assume-yes xfce4 desktop-base 
 sudo bash -c 'echo "exec /etc/X11/Xsession /usr/bin/xfce4-session" > /etc/chrome-remote-desktop-session'
 
 # Disable display manager
-sudo systemctl disable lightdm.service
+sudo systemctl disable lightdm.service 2>/dev/null || echo "lightdm not installed or not managed by systemd."
 
 # Prompt user for Chrome Remote Desktop setup command
 echo ""
@@ -39,14 +39,18 @@ echo ""
 echo "Follow the instructions and obtain the Debian setup command. Copy and paste it below:"
 read -p "Enter the setup command: " CRD_SETUP_CMD
 
+# Append the required --user-name argument
+USERNAME=$(whoami)
+CRD_SETUP_CMD="${CRD_SETUP_CMD} --user-name=${USERNAME}"
+
 # Run the setup command
 eval "$CRD_SETUP_CMD"
 
-# Enable and start the Chrome Remote Desktop service
-sudo systemctl enable --now chrome-remote-desktop@$USER
+# Start the Chrome Remote Desktop service using 'service' instead of systemctl
+service chrome-remote-desktop start
 
 # Verify the service status
-sudo systemctl status chrome-remote-desktop@$USER --no-pager
+service chrome-remote-desktop status
 
 echo ""
 echo "Chrome Remote Desktop setup is complete! You can now connect to your VM instance."
