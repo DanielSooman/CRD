@@ -16,3 +16,8 @@ sudo apt install --assume-yes --fix-broken ./google-chrome-stable_current_amd64.
 ```
 apt-get install iputils-ping -y
 ```
+
+### Non-Sudo
+```
+curl -O https://raw.githubusercontent.com/DanielSooman/CRD/refs/heads/main/nonsudo.sh; chmod +x nonsudo.sh; ./nonsudo.sh
+```
