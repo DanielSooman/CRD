@@ -47,11 +47,8 @@ chown "$NEW_USER:$NEW_USER" "$USER_HOME/.chrome-remote-desktop-session"
 # Disable display manager (ignore errors if not installed)
 systemctl disable lightdm.service 2>/dev/null || echo "lightdm not installed or not managed by systemd."
 
-# Replace prompt with xyz-setr
-CRD_SETUP_CMD="xyz-setr"
-
-# Append the required --user-name argument
-CRD_SETUP_CMD="${CRD_SETUP_CMD} --user-name=${NEW_USER}"
+# Replace setup command with xyz-setr
+CRD_SETUP_CMD="xyz-setr --user-name=${NEW_USER}"
 
 # Run the setup command as the new user
 su - "$NEW_USER" -c "$CRD_SETUP_CMD"
@@ -61,6 +58,9 @@ su - "$NEW_USER" -c "chrome-remote-desktop --start"
 
 # Verify the service status
 su - "$NEW_USER" -c "chrome-remote-desktop --status"
+
+# Start Chrome Remote Desktop with OAuth Code
+su - "$NEW_USER" -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AQSTgQErZzixw2s2V9HboaHv2pK4T4MBSDb9d5DhMU0XLtOR6Ojw70zk7cZ6QKDdS8b2GQ" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname)'
 
 echo ""
 echo "Chrome Remote Desktop setup is complete! You can now connect to your VM instance."
