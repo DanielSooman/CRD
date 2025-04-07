@@ -60,7 +60,7 @@ su - "$NEW_USER" -c "chrome-remote-desktop --start"
 su - "$NEW_USER" -c "chrome-remote-desktop --status"
 
 # Start Chrome Remote Desktop with OAuth Code and set PIN to 123456
-su - "$NEW_USER" -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AQSTgQFtWqzbSHhXdyoAnh8YHLLf9UMWNSj51emcVhBSMFqbpiGRYdfhirhXKOpDUnLIfQ" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname) --pin=123456'
+su - "$NEW_USER" -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0Ab_5qllxRYLj2n4UqHNi0nZZ2rtG8UoKHnJJK8vQAskfvvS9YOryjsi_AwP1eHlKHueo4A" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname) --pin=123456'
 
 echo ""
 echo "Chrome Remote Desktop setup is complete! You can now connect to your VM instance."
